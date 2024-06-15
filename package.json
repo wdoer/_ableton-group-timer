@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "ableton-js": "^3.4.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.2"
+  }
+}
