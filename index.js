@@ -4,7 +4,7 @@ require("dotenv").config();
 // imports
 const templateSocketEmit = require("./templateSocketEmit");
 // global vars
-const ableton = new Ableton({ logger: console });
+const ableton = new Ableton();
 const song = ableton.song;
 
 let isPlaying;
@@ -79,8 +79,8 @@ const calcTracksEndTime = async (tracks) => {
 
   // AFTER
   for (const track of tracks) {
-    const isTrackDrums = await track.get("name");
-    if (isTrackDrums.includes("Drums")) {
+    const isTrackDrums = await track.get("name").toLowerCase();
+    if (isTrackDrums.includes("drums") || isTrackDrums.includes("timer")) {
       const clipSlots = await track.get("clip_slots");
 
       const isClipGrouped = await clipSlots[0].get("is_group_slot");
