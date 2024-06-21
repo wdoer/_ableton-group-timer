@@ -1,10 +1,12 @@
 const socket = require("socket.io-client");
 const { Ableton } = require("ableton-js");
 require("dotenv").config();
+
 // imports
 const templateSocketEmit = require("./templateSocketEmit");
+
 // global vars
-const ableton = new Ableton();
+const ableton = new Ableton({ logger: console });
 const song = ableton.song;
 
 let isPlaying;
@@ -14,12 +16,8 @@ let diffTempo;
 
 // socket init
 const server = socket(process.env.API_URL);
-// const server = socket("http://localhost:4000");
 server.on("connect", () => {
   console.log("[ServerIO] Connected.");
-});
-server.on("refresh", () => {
-  // initTracksOutputData();
 });
 
 // ableton init
@@ -28,7 +26,6 @@ const initAbleton = async () => {
 
   song.addListener("is_playing", (status) => (isPlaying = status));
 
-  // initTracksOutputData();
   initTimers();
 };
 
@@ -77,10 +74,10 @@ const initTimersBody = async () => {
 const calcTracksEndTime = async (tracks) => {
   let tracksEndTime = [];
 
-  // AFTER
   for (const track of tracks) {
-    const isTrackDrums = await track.get("name").toLowerCase();
-    if (isTrackDrums.includes("timer")) {
+    const trackName = await track.get("name");
+
+    if (trackName.toLowerCase().includes("timer")) {
       const clipSlots = await track.get("clip_slots");
 
       const isClipGrouped = await clipSlots[0].get("is_group_slot");
@@ -96,29 +93,6 @@ const calcTracksEndTime = async (tracks) => {
       }
     }
   }
-  // AFTER
-
-  // BEFORE
-  // for (const track of tracks) {
-  //   const isGrouped = await track.get("is_grouped");
-
-  //   if (isGrouped) {
-  //     const clipSlots = await track.get("clip_slots");
-
-  //     const isClipGrouped = await clipSlots[0].get("is_group_slot");
-
-  //     if (!isClipGrouped) {
-  //       const arrangementClips = await track.get("arrangement_clips");
-  //       const { start_time, end_time } = arrangementClips[0]?.raw;
-
-  //       tracksEndTime.push({
-  //         startTime: start_time > 0 ? Math.floor(start_time) / diffTempo : 0,
-  //         endTime: Math.floor(end_time) / diffTempo,
-  //       });
-  //     }
-  //   }
-  // }
-  // BEFORE
 
   tracksEndTime = Array.from(
     new Set(tracksEndTime.map((obj) => JSON.stringify(obj)))
