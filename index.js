@@ -8,6 +8,7 @@ const templateSocketEmit = require("./templateSocketEmit");
 // global vars
 const ableton = new Ableton({ logger: console });
 const song = ableton.song;
+const tempTrack = { percentage: 0, timer: 0 };
 
 let isPlaying;
 
@@ -111,11 +112,23 @@ const initSendTimerData = async (time, tracksEndTime) => {
         100
     ),
     timer: Math.floor(trackTime.endTime - currentTime),
+    startTime: trackTime.startTime,
   }));
+
+  const activeTrack = tracksTimer
+    .sort((a, b) => a.timer - b.timer)
+    .find((timer) => timer.timer > 0);
+
+  if (activeTrack.startTime > currentTime) {
+    return server.emit(
+      "abletonToTimer",
+      templateSocketEmit("timerData", { tracksTimer: [tempTrack] })
+    );
+  }
 
   server.emit(
     "abletonToTimer",
-    templateSocketEmit("timerData", { tracksTimer }, "abletonToTimer")
+    templateSocketEmit("timerData", { tracksTimer })
   );
 };
 
