@@ -75,16 +75,20 @@ const initTimersBody = async () => {
 const calcTracksEndTime = async (tracks) => {
   let tracksEndTime = [];
 
-  for (const track of tracks) {
-    const trackName = await track.get("name");
+  const trackNames = await Promise.all(
+    tracks.map((track) => track.get("name"))
+  );
+
+  for (let i = 0; i < tracks.length; i++) {
+    const trackName = trackNames[i];
 
     if (trackName.toLowerCase().includes("timer")) {
-      const clipSlots = await track.get("clip_slots");
+      const clipSlots = await tracks[i].get("clip_slots");
 
       const isClipGrouped = await clipSlots[0].get("is_group_slot");
 
       if (!isClipGrouped) {
-        const arrangementClips = await track.get("arrangement_clips");
+        const arrangementClips = await tracks[i].get("arrangement_clips");
         const { start_time, end_time } = arrangementClips[0]?.raw;
 
         tracksEndTime.push({
@@ -119,7 +123,7 @@ const initSendTimerData = async (time, tracksEndTime) => {
     .sort((a, b) => a.timer - b.timer)
     .find((timer) => timer.timer > 0);
 
-  if (activeTrack.startTime > currentTime) {
+  if (activeTrack?.startTime > currentTime) {
     return server.emit(
       "abletonToTimer",
       templateSocketEmit("timerData", { tracksTimer: [tempTrack] })
